@@ -423,6 +423,15 @@ fn getDependencies(b: *std.Build, target: Target, optimize: OptimizeMode, ts_lan
             .{ .name = "zig" },
         };
         for (parsers) |parser| {
+            var found = false;
+            for (ts_language_list) |requested| {
+                if (std.mem.eql(u8, parser.name, requested)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) continue;
+
             const dep_name = try std.fmt.allocPrint(b.allocator, "tree_sitter_{s}", .{parser.name});
             const ts = b.dependency(dep_name, .{ .optimize = optimize, .target = target });
             asset_mod.addCSourceFile(.{ .file = ts.path("src/parser.c") });
